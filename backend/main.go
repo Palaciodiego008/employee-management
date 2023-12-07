@@ -19,10 +19,17 @@ var db *sqlx.DB
 
 // Employee representa la estructura de un empleado.
 type Employee struct {
-	ID      int       `json:"id" db:"id"`
-	Name    string    `json:"name" db:"name"`
-	Manager *Employee `json:"manager,omitempty" db:"-"`
-	Version int       `json:"version" db:"version"`
+	ID        int       `json:"id" db:"id"`
+	Name      string    `json:"name" db:"name"`
+	ManagerID int       `json:"manager_id,omitempty" db:"manager_id"`
+	Manager   *Employee `json:"manager,omitempty" db:"-"`
+	Version   int       `json:"version" db:"version"`
+}
+
+// EmployeeHierarchy representa la estructura jerárquica de empleados.
+type EmployeeHierarchy struct {
+	Employee     *Employee            `json:"employee"`
+	Subordinates []*EmployeeHierarchy `json:"subordinates,omitempty"`
 }
 
 // EmployeeService representa el servicio de gestión de empleados.
@@ -37,7 +44,7 @@ func (s *EmployeeService) GetHierarchy(w http.ResponseWriter, r *http.Request) {
 	var employees []Employee
 
 	err := db.Select(&employees, `
-		SELECT id, name, version
+		SELECT id, name, manager_id, version
 		FROM Employee
 	`)
 	if err != nil {
@@ -46,14 +53,35 @@ func (s *EmployeeService) GetHierarchy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Construir jerarquía de empleados asignando instancias de Manager
-	for i, e := range employees {
+	hierarchy := buildEmployeeHierarchy(employees)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(hierarchy)
+}
+
+// Función para construir la jerarquía de empleados
+func buildEmployeeHierarchy(employees []Employee) []*EmployeeHierarchy {
+	employeeMap := make(map[int]*EmployeeHierarchy)
+
+	// Crear un mapa para acceder rápidamente a los empleados por ID
+	for _, e := range employees {
+		employeeMap[e.ID] = &EmployeeHierarchy{Employee: &e}
+	}
+
+	var hierarchy []*EmployeeHierarchy
+
+	// Construir la jerarquía asignando subordinados
+	for _, e := range employees {
+		// Crear una nueva variable para cada empleado al construir la jerarquía
+		employee := &EmployeeHierarchy{Employee: &e}
 		if e.Manager != nil {
-			employees[i].Manager.Version = e.Manager.Version
+			employeeMap[e.Manager.ID].Subordinates = append(employeeMap[e.Manager.ID].Subordinates, employee)
+		} else {
+			hierarchy = append(hierarchy, employee)
 		}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(employees)
+	return hierarchy
 }
 
 // Agregar un nuevo empleado
@@ -70,7 +98,7 @@ func (s *EmployeeService) AddEmployee(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insertar el nuevo empleado en la base de datos
-	_, err = db.Exec("INSERT INTO Employee (name, version) VALUES (?, ?)", newEmployee.Name, newEmployee.Version)
+	_, err = db.Exec("INSERT INTO Employee (name, manager_id, version) VALUES (?, ?, ?)", newEmployee.Name, newEmployee.ManagerID, newEmployee.Version)
 	if err != nil {
 		http.Error(w, "Error adding new employee", http.StatusInternalServerError)
 		return
@@ -121,8 +149,9 @@ func (s *EmployeeService) UpdateManager(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Actualizar el jefe en la base de datos
-	_, err = db.Exec("UPDATE Employee SET version = version + 1 WHERE id = ?", eID)
+	_, err = db.Exec("UPDATE Employee SET manager_id = ?, version = version + 1 WHERE id = ?", mID, eID)
 	if err != nil {
+		fmt.Println("manager_id:", mID, "employee_id:", eID)
 		http.Error(w, "Error updating employee version", http.StatusInternalServerError)
 		return
 	}
