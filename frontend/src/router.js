@@ -1,20 +1,27 @@
-// router.js
-import Vue from "vue";
-import VueRouter from "vue-router";
-import EmployeeHierarchy from "@/components/EmployeeHierarchy.vue";
-import AddEmployee from "@/components/AddEmployee.vue";
-import UpdateManager from "@/components/UpdateManager.vue";
+import { createRouter, createWebHistory } from "vue-router";
 
-Vue.use(VueRouter);
 
 const routes = [
-  { path: "/", component: EmployeeHierarchy },
-  { path: "/add-employee", component: AddEmployee },
-  { path: "/update-manager", component: UpdateManager },
+  {
+    path: "/",
+    name: "employeeHierarchy",
+    component: () => import("./components/EmployeeHierarchy.vue"),
+  },
+  {
+    path: "/add-employee",
+    name: "addEmployee",
+    component: () => import("./components/AddEmployee.vue"),
+  },
+  {
+    path: "/update-manager",
+    name: "updateManager",
+    component: () => import("./components/UpdateManager.vue"),
+  },
 ];
 
-const router = new VueRouter({
-  routes,
-});
+const router = createRouter({
+    history: createWebHistory(),
+    routes,
+  });
 
 export default router;

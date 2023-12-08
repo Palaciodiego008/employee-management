@@ -30,7 +30,7 @@
     methods: {
       updateManager() {
         // Send a request to your API to update the manager
-        axios.put(`http://localhost:8080/update/${this.employeeId}/${this.newManagerId}`)
+        axios.put(`http://localhost:8080/api/employees/${this.employeeId}/managers/${this.newManagerId}`)
           .then(response => {
             console.log("Manager updated successfully:", response.data);
             // Optionally, you can redirect or show a success message here
