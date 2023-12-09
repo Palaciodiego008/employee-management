@@ -183,10 +183,9 @@ func main() {
 		return
 	}
 
-	// Establecer rutas
-	r.HandleFunc("/hierarchy", service.GetHierarchy).Methods("GET")
-	r.HandleFunc("/update/{employeeID}/{managerID}", service.UpdateManager).Methods("PUT")
-	r.HandleFunc("/employees", service.AddEmployee).Methods("POST")
+	r.HandleFunc("/api/employees/hierarchy", service.GetHierarchy).Methods("GET")
+	r.HandleFunc("/api/employees/{employeeID}/managers/{managerID}", service.UpdateManager).Methods("PUT")
+	r.HandleFunc("/api/employees", service.AddEmployee).Methods("POST")
 
 	// Configurar opciones CORS
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
