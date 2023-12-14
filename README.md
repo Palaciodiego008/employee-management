@@ -1,10 +1,3 @@
-# employee-management
-
-
-A continuación, proporcionaré un README.md para ambos, el backend (escrito en Go) y el frontend (escrito en Vue.js). Este es un ejemplo básico y puedes personalizarlo según tus necesidades.
-
----
-
 # Employee Management System
 
 Este es un sistema simple de gestión de empleados con un backend escrito en Go y un frontend escrito en Vue.js.
