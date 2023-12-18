@@ -33,11 +33,9 @@
         axios.put(`http://localhost:8080/api/employees/${this.employeeId}/managers/${this.newManagerId}`)
           .then(response => {
             console.log("Manager updated successfully:", response.data);
-            // Optionally, you can redirect or show a success message here
           })
           .catch(error => {
             console.error("Error updating manager:", error);
-            // Handle the error (e.g., show an error message)
           });
       },
     },
