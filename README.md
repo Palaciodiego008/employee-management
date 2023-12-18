@@ -84,7 +84,3 @@ La aplicación estará disponible en `http://localhost:8081`. Abre tu navegador 
 
 - La página principal muestra la jerarquía de empleados.
 - Puedes navegar a "Add Employee" y "Update Manager" desde la página de la jerarquía de empleados.
-
----
-
-Este README proporciona una guía básica para la instalación y ejecución del sistema. Puedes personalizarlo y agregar más detalles según tus necesidades. Además, asegúrate de mantener tus dependencias actualizadas y sigue las mejores prácticas de seguridad para las configuraciones en producción.
